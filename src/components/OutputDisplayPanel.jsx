@@ -4,7 +4,6 @@ import { gsap } from 'gsap';
 export default function OutputDisplayPanel({ assignedOrder, hasCalculated }) {
   const panelRef = useRef(null);
 
-  // Smooth pop-in animation whenever the calculation state shifts
   useEffect(() => {
     if (panelRef.current && hasCalculated) {
       gsap.fromTo(panelRef.current,
@@ -14,14 +13,13 @@ export default function OutputDisplayPanel({ assignedOrder, hasCalculated }) {
     }
   }, [assignedOrder, hasCalculated]);
 
-  // Initial standby state layout if no calculation has been run yet
   if (!hasCalculated) {
     return (
       <div className="bg-slate-800/30 border-2 border-dashed border-slate-700/40 rounded-2xl p-8 flex flex-col items-center justify-center text-center min-h-[220px]">
         <span className="text-2xl mb-2 opacity-50">🧭</span>
         <div className="text-xs font-bold uppercase tracking-wider text-slate-400">Terminal Standby</div>
         <p className="text-xs text-slate-500 mt-1 max-w-[200px]">
-          Awaiting input metrics to capture optimization stream results.
+            Add a data to filter and assign screen to see the nearest order info!
         </p>
       </div>
     );
@@ -30,7 +28,6 @@ export default function OutputDisplayPanel({ assignedOrder, hasCalculated }) {
   return (
     <div ref={panelRef} className="w-full">
       {assignedOrder ? (
-        /* SUCCESS OUTCOME PACKET */
         <div className="bg-slate-800 rounded-2xl border border-emerald-500/20 shadow-xl p-8 flex flex-col justify-between min-h-[220px]">
           <div className="space-y-4">
             <div className="flex justify-between items-center border-b border-slate-700/40 pb-4">
@@ -66,7 +63,6 @@ export default function OutputDisplayPanel({ assignedOrder, hasCalculated }) {
           </div>
         </div>
       ) : (
-        /* MANDATORY REQ 4C: FALLBACK DISPATCH ERROR NOTICE */
         <div className="bg-slate-800 rounded-2xl border border-red-500/10 shadow-xl p-8 flex flex-col items-center justify-center text-center min-h-[220px]">
           <div className="w-10 h-10 bg-red-500/10 rounded-full flex items-center justify-center text-red-400 text-sm font-bold mb-3">
             ⚠️

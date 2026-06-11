@@ -4,6 +4,7 @@ import AddOrderForm from './AddOrderForm';
 import OrderList from './OrderList';
 import DeliveryAssigner from './DeliveryAssigner';
 import OutputDisplayPanel from './OutputDisplayPanel';
+import Footer from './Footer';
 
 export default function ScreenRouter() {
   const [activePage, setActivePage] = useState('add');
@@ -13,7 +14,6 @@ export default function ScreenRouter() {
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 font-sans antialiased relative overflow-x-hidden">
       
-      {/* Background Tech Grids & Ambient Lighting */}
       <div className="absolute inset-0 bg-[linear-gradient(to_right,#1e293b10_1px,transparent_1px),linear-gradient(to_bottom,#1e293b10_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)] pointer-events-none z-0"></div>
       <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-orange-500/[0.03] rounded-full blur-[120px] pointer-events-none z-0"></div>
       <div className="absolute bottom-[10%] right-[-10%] w-[600px] h-[600px] bg-emerald-500/[0.02] rounded-full blur-[150px] pointer-events-none z-0"></div>
@@ -60,6 +60,7 @@ export default function ScreenRouter() {
         )}
 
       </main>
+      <Footer />
     </div>
   );
 }
