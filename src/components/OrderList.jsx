@@ -3,13 +3,12 @@ import { useOrders } from '../context/OrderContext';
 import { gsap } from 'gsap';
 
 export default function OrderList() {
-  const { orders, deleteOrder } = useOrders();
+  const { orders, deleteOrder, markAsPaid } = useOrders();
   
   const [statusFilter, setStatusFilter] = useState('all');
   const [maxDistanceInput, setMaxDistanceInput] = useState('');
-
-  const [sortField, setSortField] = useState('orderId'); 
-  const [sortDirection, setSortDirection] = useState('asc'); 
+  const [sortField, setSortField] = useState('orderId');
+  const [sortDirection, setSortDirection] = useState('asc');
 
   const tableWrapperRef = useRef(null);
 
@@ -102,7 +101,6 @@ export default function OrderList() {
         <table className="w-full text-left border-collapse text-xs">
           <thead>
             <tr className="bg-slate-900/60 border-b border-slate-700/60 text-slate-400 font-bold uppercase tracking-wider select-none">
-              
               <th onClick={() => requestSort('orderId')} className="py-3.5 px-5 font-mono text-[10px] cursor-pointer hover:text-slate-200 transition-colors">
                 Order ID{getSortIcon('orderId')}
               </th>
@@ -118,8 +116,7 @@ export default function OrderList() {
               <th onClick={() => requestSort('isPaid')} className="py-3.5 px-5 text-center cursor-pointer hover:text-slate-200 transition-colors">
                 Status Flag{getSortIcon('isPaid')}
               </th>
-              
-              <th className="py-3.5 px-5 text-center text-[10px]">Actions</th>
+              <th className="py-3.5 px-5 text-center">Actions</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-700/30">
@@ -151,12 +148,25 @@ export default function OrderList() {
                     </span>
                   </td>
                   <td className="py-3.5 px-5 text-center">
-                    <button
-                      onClick={() => deleteOrder(order.orderId)}
-                      className="bg-slate-900/40 hover:bg-red-500/10 text-slate-500 hover:text-red-400 border border-slate-700/60 hover:border-red-500/30 font-bold px-2.5 py-1 rounded-lg transition-all cursor-pointer text-[10px] uppercase tracking-wider"
-                    >
-                      Delete
-                    </button>
+                    <div className="flex items-center justify-center gap-2">
+                      <button
+                        onClick={() => markAsPaid(order.orderId)}
+                        disabled={order.isPaid}
+                        className={`font-bold px-2.5 py-1 rounded-lg transition-all text-[10px] uppercase tracking-wider border ${
+                          order.isPaid
+                            ? 'bg-slate-900 border-slate-800 text-slate-600 cursor-not-allowed opacity-50'
+                            : 'bg-emerald-500/10 hover:bg-emerald-500/20 border-emerald-500/20 text-emerald-400 cursor-pointer'
+                        }`}
+                      >
+                        {order.isPaid ? 'Settled' : 'Mark Paid'}
+                      </button>
+                      <button
+                        onClick={() => deleteOrder(order.orderId)}
+                        className="bg-slate-900/40 hover:bg-red-500/10 text-slate-500 hover:text-red-400 border border-slate-700/60 hover:border-red-500/30 font-bold px-2.5 py-1 rounded-lg transition-all cursor-pointer text-[10px] uppercase tracking-wider"
+                      >
+                        Delete
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))
