@@ -7,7 +7,6 @@ export default function DeliveryAssigner({ setAssignedOrder, setHasCalculated, s
   const [maxDistanceInput, setMaxDistanceInput] = useState('');
   const containerRef = useRef(null);
 
-  // Smooth fade-in entry animation
   useEffect(() => {
     if (containerRef.current) {
       gsap.fromTo(containerRef.current.querySelectorAll('.animate-fade'),
@@ -24,29 +23,23 @@ export default function DeliveryAssigner({ setAssignedOrder, setHasCalculated, s
     const maxDist = parseFloat(maxDistanceInput);
     if (isNaN(maxDist) || maxDist <= 0) {
       setAssignedOrder(null);
-      setActivePage('output'); // Instantly redirect to output page display
+      setActivePage('output'); 
       return;
     }
 
-    // Filter unpaid orders
     const unpaidOrders = orders.filter(order => !order.isPaid);
     
-    // Bound filter within max distance radius
     const withinRadiusOrders = unpaidOrders.filter(order => order.deliveryDistance <= maxDist);
 
     if (withinRadiusOrders.length === 0) {
       setAssignedOrder(null);
     } else {
-      // Proximity Sorting: Ascending order to find the nearest match
       const sortedNearest = [...withinRadiusOrders].sort((a, b) => a.deliveryDistance - b.deliveryDistance);
       setAssignedOrder(sortedNearest[0]);
     }
-
-    // Automatically navigate to the Output Display Panel screen page
     setActivePage('output');
   };
 
-  // Derive real-time unassigned counter for the footer summary box
   const pendingCount = orders.filter(o => !o.isPaid).length;
 
   return (
@@ -90,7 +83,6 @@ export default function DeliveryAssigner({ setAssignedOrder, setHasCalculated, s
           </form>
         </div>
 
-        {/* STATUS FOOTER */}
         <div className="mt-8 pt-4 border-t border-slate-700/40 flex justify-between items-center text-xs text-slate-400 font-medium">
           <span>Orders waiting for delivery:</span>
           <span className="font-bold text-amber-400">{pendingCount} orders</span>

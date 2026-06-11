@@ -27,13 +27,11 @@ export default function AddOrderForm({ setActivePage }) {
     setErrorMessage('');
     addOrder(restaurantName, items, distance, isPaid);
 
-    // Reset Form Input Parameters
     setRestaurantName('');
     setItemCount('');
     setDeliveryDistance('');
     setIsPaid(false);
 
-    // Redirect user to the listing view matrix
     if (setActivePage) setActivePage('list');
   };
 
