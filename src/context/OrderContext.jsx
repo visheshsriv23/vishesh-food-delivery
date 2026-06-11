@@ -1,78 +1,57 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useRef } from 'react';
 
 const OrderContext = createContext();
 
 export function OrderProvider({ children }) {
-  const [orders, setOrders] = useState(() => {
-    const savedOrders = localStorage.getItem('orders');
-    if (savedOrders) {
-      try {
-        return JSON.parse(savedOrders);
-      } catch (e) {
-        console.error("Error parsing localStorage records:", e);
-      }
-    }
-    return [
-      { orderId: "ORD-101", restaurantName: "Pizza Hut", itemCount: 2, isPaid: true, deliveryDistance: 2.5 },
-      { orderId: "ORD-102", restaurantName: "Burger King", itemCount: 1, isPaid: false, deliveryDistance: 4.8 },
-      { orderId: "ORD-103", restaurantName: "Subway", itemCount: 3, isPaid: false, deliveryDistance: 1.2 },
-    ];
-  });
+  // 1. Establish pristine initial mock values
+  const [orders, setOrders] = useState([
+    { orderId: 'ORD-101', restaurantName: 'Pizza Hut', itemCount: 2, deliveryDistance: 2.5, isPaid: true },
+    { orderId: 'ORD-102', restaurantName: 'Burger King', itemCount: 1, deliveryDistance: 4.8, isPaid: false },
+    { orderId: 'ORD-103', restaurantName: 'Subway', itemCount: 3, deliveryDistance: 1.2, isPaid: false },
+  ]);
 
-  const [assignmentResult, setAssignmentResult] = useState(null);
   const [errorMessage, setErrorMessage] = useState('');
+  
+  // 2. Strict ID tracker starting directly at 104
+  const nextIdNum = useRef(104);
 
-  useEffect(() => {
-    localStorage.setItem('orders', JSON.stringify(orders));
-  }, [orders]);
-
+  // Core Function: Insert new sequential node
   const addOrder = (restaurantName, itemCount, deliveryDistance, isPaid) => {
-    setErrorMessage('');
     const newOrder = {
-      orderId: `ORD-${Date.now().toString().slice(-3)}`,
+      orderId: `ORD-${nextIdNum.current}`, // Auto-generates ORD-104, ORD-105...
       restaurantName,
       itemCount,
       deliveryDistance,
-      isPaid
+      isPaid,
     };
-    setOrders((prev) => [newOrder, ...prev]);
+    
+    // Append to the bottom of our database array state
+    setOrders((prev) => [...prev, newOrder]);
+    
+    // Bump tracking index for next record injection
+    nextIdNum.current += 1;
   };
 
-  const assignDelivery = (maxDistance) => {
-    setErrorMessage('');
-    setAssignmentResult(null);
-
-    let eligible = orders.filter(order => !order.isPaid && order.deliveryDistance <= maxDistance);
-
-    if (eligible.length > 0) {
-      eligible.sort((a, b) => a.deliveryDistance - b.deliveryDistance);
-      const assignedOrder = eligible[0];
-      setAssignmentResult({
-        success: true,
-        message: `Assigned ${assignedOrder.orderId} from "${assignedOrder.restaurantName}" (${assignedOrder.deliveryDistance} KM away)`
-      });
-    } else {
-      setAssignmentResult({
-        success: false,
-        message: 'No order available'
-      });
-    }
+  // NEW Core Function: Delete targeted order node
+  const deleteOrder = (targetId) => {
+    setOrders((prev) => prev.filter(order => order.orderId !== targetId));
   };
 
+  // Clear system cache back to blank state
   const clearSystemDatabase = () => {
-    localStorage.removeItem('orders');
-    window.location.reload();
+    setOrders([]);
+    setErrorMessage('');
+    nextIdNum.current = 101; // Reset indexing loop
   };
 
   return (
-    <OrderContext.Provider value={{
-      orders,
-      assignmentResult,
-      errorMessage,
-      setErrorMessage,
-      addOrder,
-      assignDelivery,
-      clearSystemDatabase
+    <OrderContext.Provider value={{ 
+      orders, 
+      addOrder, 
+      deleteOrder, // <-- Pass delete action through pipeline
+      clearSystemDatabase, 
+      errorMessage, 
+      setErrorMessage 
     }}>
       {children}
     </OrderContext.Provider>

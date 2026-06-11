@@ -33,7 +33,6 @@ export default function AddOrderForm() {
     e.preventDefault();
     setErrorMessage('');
 
-    // --- DATA FORMAT ENGINE VALIDATION ---
     if (!restaurantName.trim()) {
       setErrorMessage('Validation Mismatch: Restaurant field cannot be blank.');
       return;

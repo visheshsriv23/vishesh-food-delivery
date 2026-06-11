@@ -3,21 +3,24 @@ import { useOrders } from '../context/OrderContext';
 import { gsap } from 'gsap';
 
 export default function OrderList() {
-  const { orders } = useOrders();
+  const { orders, deleteOrder } = useOrders();
   
   const [statusFilter, setStatusFilter] = useState('all');
   const [maxDistanceInput, setMaxDistanceInput] = useState('');
+
+  const [sortField, setSortField] = useState('orderId'); 
+  const [sortDirection, setSortDirection] = useState('asc'); 
 
   const tableWrapperRef = useRef(null);
 
   useEffect(() => {
     if (tableWrapperRef.current) {
       gsap.fromTo(tableWrapperRef.current, 
-        { opacity: 0, y: 15 },
-        { opacity: 1, y: 0, duration: 0.4, ease: 'power2.out' }
+        { opacity: 0, y: 10 },
+        { opacity: 1, y: 0, duration: 0.3, ease: 'power2.out' }
       );
     }
-  }, [statusFilter, maxDistanceInput, orders]);
+  }, [statusFilter, maxDistanceInput, orders, sortField, sortDirection]);
 
   const filteredOrders = orders.filter((order) => {
     if (statusFilter === 'paid' && !order.isPaid) return false;
@@ -32,6 +35,32 @@ export default function OrderList() {
     return true;
   });
 
+  const sortedOrders = [...filteredOrders].sort((a, b) => {
+    let valueA = a[sortField];
+    let valueB = b[sortField];
+
+    if (typeof valueA === 'string') valueA = valueA.toLowerCase();
+    if (typeof valueB === 'string') valueB = valueB.toLowerCase();
+
+    if (valueA < valueB) return sortDirection === 'asc' ? -1 : 1;
+    if (valueA > valueB) return sortDirection === 'asc' ? 1 : -1;
+    return 0;
+  });
+
+  const requestSort = (field) => {
+    let direction = 'asc';
+    if (sortField === field && sortDirection === 'asc') {
+      direction = 'desc';
+    }
+    setSortField(field);
+    setSortDirection(direction);
+  };
+
+  const getSortIcon = (field) => {
+    if (sortField !== field) return ' ↕';
+    return sortDirection === 'asc' ? ' ↑' : ' ↓';
+  };
+
   return (
     <div 
       ref={tableWrapperRef}
@@ -39,11 +68,11 @@ export default function OrderList() {
     >
       <div className="p-5 border-b border-slate-700/60 bg-slate-800/50 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h3 className="text-sm font-black uppercase tracking-wider text-slate-200">
+          <h3 className="text-sm font-bold uppercase tracking-wider text-slate-200">
             Active Registry Nodes
           </h3>
           <p className="text-[11px] text-slate-500 font-medium font-mono mt-0.5">
-            Displaying {filteredOrders.length} of {orders.length} matches
+            Displaying {sortedOrders.length} of {orders.length} matches • Click columns to sort
           </p>
         </div>
 
@@ -72,17 +101,30 @@ export default function OrderList() {
       <div className="overflow-x-auto">
         <table className="w-full text-left border-collapse text-xs">
           <thead>
-            <tr className="bg-slate-900/60 border-b border-slate-700/60 text-slate-400 font-bold uppercase tracking-wider">
-              <th className="py-3.5 px-5 font-mono text-[10px]">Order ID</th>
-              <th className="py-3.5 px-5">Restaurant Name</th>
-              <th className="py-3.5 px-5 text-center">Items</th>
-              <th className="py-3.5 px-5 text-right">Distance</th>
-              <th className="py-3.5 px-5 text-center">Status Flag</th>
+            <tr className="bg-slate-900/60 border-b border-slate-700/60 text-slate-400 font-bold uppercase tracking-wider select-none">
+              
+              <th onClick={() => requestSort('orderId')} className="py-3.5 px-5 font-mono text-[10px] cursor-pointer hover:text-slate-200 transition-colors">
+                Order ID{getSortIcon('orderId')}
+              </th>
+              <th onClick={() => requestSort('restaurantName')} className="py-3.5 px-5 cursor-pointer hover:text-slate-200 transition-colors">
+                Restaurant Name{getSortIcon('restaurantName')}
+              </th>
+              <th onClick={() => requestSort('itemCount')} className="py-3.5 px-5 text-center cursor-pointer hover:text-slate-200 transition-colors">
+                Items{getSortIcon('itemCount')}
+              </th>
+              <th onClick={() => requestSort('deliveryDistance')} className="py-3.5 px-5 text-right cursor-pointer hover:text-slate-200 transition-colors">
+                Distance{getSortIcon('deliveryDistance')}
+              </th>
+              <th onClick={() => requestSort('isPaid')} className="py-3.5 px-5 text-center cursor-pointer hover:text-slate-200 transition-colors">
+                Status Flag{getSortIcon('isPaid')}
+              </th>
+              
+              <th className="py-3.5 px-5 text-center text-[10px]">Actions</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-700/30">
-            {filteredOrders.length > 0 ? (
-              filteredOrders.map((order) => (
+            {sortedOrders.length > 0 ? (
+              sortedOrders.map((order) => (
                 <tr 
                   key={order.orderId}
                   className="hover:bg-slate-700/20 text-slate-300 transition-colors duration-150"
@@ -108,11 +150,19 @@ export default function OrderList() {
                       {order.isPaid ? 'Paid' : 'Unpaid'}
                     </span>
                   </td>
+                  <td className="py-3.5 px-5 text-center">
+                    <button
+                      onClick={() => deleteOrder(order.orderId)}
+                      className="bg-slate-900/40 hover:bg-red-500/10 text-slate-500 hover:text-red-400 border border-slate-700/60 hover:border-red-500/30 font-bold px-2.5 py-1 rounded-lg transition-all cursor-pointer text-[10px] uppercase tracking-wider"
+                    >
+                      Delete
+                    </button>
+                  </td>
                 </tr>
               ))
             ) : (
               <tr>
-                <td colSpan="5" className="py-12 text-center text-slate-500 font-bold tracking-wider uppercase">
+                <td colSpan="6" className="py-12 text-center text-slate-500 font-bold tracking-wider uppercase">
                   No registered routes match active filters.
                 </td>
               </tr>
