@@ -22,7 +22,6 @@ export function OrderProvider({ children }) {
   const [assignmentResult, setAssignmentResult] = useState(null);
   const [errorMessage, setErrorMessage] = useState('');
 
-  // Auto-sync state modifications to browser storage
   useEffect(() => {
     localStorage.setItem('orders', JSON.stringify(orders));
   }, [orders]);
